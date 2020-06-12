@@ -1,0 +1,50 @@
+###TCSS600A - Independent study Project ###
+###  Author: Sumitha Ravindran          ###
+### Recipe Box Application              ###
+### Deployment file : All_Recipes       ###
+### Endpoint to return all the recipes  ###
+### and finding latency.                ###
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: allrecipes-latency-service
+  labels:
+    app: allrecipes-latency
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 6010
+    targetPort: 6010
+    protocol: TCP
+    name: http
+  selector:
+    app: allrecipes-latency
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: allrecipes-latency-deployment
+  labels:
+    app: allrecipes-latency
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: allrecipes-latency
+  template:
+    metadata:
+      labels:
+        app: allrecipes-latency
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '6010'
+        prometheus.io/path: '/recipe_box/metrics'
+    spec:
+      containers:
+      - name: allrecipes-latency
+        image: sr/allrecipes_latency:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: LISTENING_PORT
+            value: "6010"

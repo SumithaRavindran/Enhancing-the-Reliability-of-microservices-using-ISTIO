@@ -1,0 +1,49 @@
+###TCSS600A - Independent study Project ###
+### Author: Sumitha Ravindran           ###
+### Recipe Box Application              ###
+### Deployment file: Home Page service  ###
+### Home Page endpoint for recipe box   ###
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage-latency-service
+  labels:
+    app: hp
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5010
+    targetPort: 5010
+    protocol: TCP
+    name: http
+  selector:
+    app: hp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage-latency-deployment
+  labels:
+    app: hp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hp
+  template:
+    metadata:
+      labels:
+        app: hp
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '5010'
+        prometheus.io/path: '/metrics'
+    spec:
+      containers:
+      - name: homepage-latency
+        image: sr/homepage_latency:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: LISTENING_PORT
+            value: "5010"

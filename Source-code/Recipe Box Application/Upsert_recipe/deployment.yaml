@@ -1,0 +1,49 @@
+###TCSS600A - Independent study Project       ###
+###  Author: Sumitha Ravindran                ###
+### Recipe Box Application                    ###
+### Deployment file: upsert_Recipe            ###
+### Endpoint to upsert a recipe in recipe_box ###
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: upsert-latency-service
+  labels:
+    app: upsert-latency
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9010
+    targetPort: 9010
+    protocol: TCP
+    name: http
+  selector:
+    app: upsert-latency
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: upsert-latency-deployment
+  labels:
+    app: upsert-latency
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: upsert-latency
+  template:
+    metadata:
+      labels:
+        app: upsert-latency
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9010'
+        prometheus.io/path: '/recipe_box/upsert/metrics'
+    spec:
+      containers:
+      - name: upsert-latency
+        image: sr/upsert_latency:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: LISTENING_PORT
+            value: "9010"

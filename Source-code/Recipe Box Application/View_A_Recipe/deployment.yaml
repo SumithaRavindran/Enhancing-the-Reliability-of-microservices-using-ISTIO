@@ -1,0 +1,49 @@
+###TCSS600A - Independent study Project       ###
+###  Author: Sumitha Ravindran                ###
+###  Recipe Box Application                   ###
+### Deployment file: View_a_Recipe            ###
+### Endpoint to view a recipe from recipe_box ###
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: viewrecipe-latency-service
+  labels:
+    app: viewrecipe-latency
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 7010
+    targetPort: 7010
+    protocol: TCP
+    name: http
+  selector:
+    app: viewrecipe-latency
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: viewrecipe-latency-deployment
+  labels:
+    app: viewrecipe-latency
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: viewrecipe-latency
+  template:
+    metadata:
+      labels:
+        app: viewrecipe-latency
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '7010'
+        prometheus.io/path: '/recipe_box/recipes/metrics'
+    spec:
+      containers:
+      - name: viewrecipe-latency
+        image: sr/viewrecipe_latency:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: LISTENING_PORT
+            value: "7010"
