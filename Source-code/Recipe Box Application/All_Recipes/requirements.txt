@@ -17,7 +17,7 @@ mccabe==0.6.1
 mysql-connector-python==8.0.19
 objectpath==0.6.1
 prometheus-client==0.7.1
-protobuf==3.6.1
+protobuf==3.18.3
 pylint==2.5.0
 PyMySQL==0.9.3
 requests==2.23.0
